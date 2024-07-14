@@ -39,13 +39,14 @@ func DeleteMessage(id int) bool {
 	return true
 }
 
-func EditMessage(id int, subject string, recipient string, content string) models.Message {
+func UpdateMessage(id int, subject string, recipient string, content string, status bool) models.Message {
 	db := models.ConnectDB()
 	var message models.Message
 	db.Where("id = ?", id).First(&message)
 	message.Subject = subject
 	message.Recipient = recipient
 	message.Content = content
+	message.Status = status
 	db.Save(&message)
 	return message
 }

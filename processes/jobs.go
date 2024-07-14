@@ -71,14 +71,18 @@ func DeleteJob(hash string) bool {
 
 func RunJob(hash string) {
 	job := ReadJob(hash)
-	job.Status = "running"
+	job.Status = "processing"
 	UpdateJob(job)
 	messages := GetMessagesByJobID(job.ID)
 
 	for _, message := range messages {
 		mail := SendMail(message, job)
 		fmt.Println("Mail sent: ", mail)
+		message.Status = true
+		UpdateMessage(message.ID, message.Subject, message.Recipient, message.Content, message.Status)
 	}
+	job.Status = "completed"
+	UpdateJob(job)
 }
 
 func GenerateNewJob(job NewJob) NewJob {
