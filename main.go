@@ -24,7 +24,8 @@ func main() {
 	}
 
 	if parseCommand.Command == "list_messages" {
-		fmt.Println(processes.GetAllMessages())
+		listMessages := processes.GetAllMessages()
+		output.GenerateAllMessagesTable(listMessages)
 	}
 
 	if parseCommand.Command == "run_job" {
