@@ -42,6 +42,11 @@ func GenerateAllJobTable(jobs []models.Job) {
 				SetTextColor(tcell.ColorWhite).
 				SetAlign(tview.AlignCenter).
 				SetSelectable(false))
+		table.SetCell(i+1, 4,
+			tview.NewTableCell(job.Schedule.String()).
+				SetTextColor(tcell.ColorRed).
+				SetAlign(tview.AlignCenter).
+				SetSelectable(false))
 	}
 	flex := tview.NewFlex().
 		AddItem(table, 0, 1, true)

@@ -11,7 +11,8 @@ import (
 
 type Input struct {
 	Command string
-	NewJob  processes.NewJob
+	Job     processes.Job
+	Value   []string
 }
 
 func ParseInput() Input {
@@ -23,12 +24,17 @@ func ParseInput() Input {
 	schedule := flag.String("d", time.Now().String(), "Schedule")
 	init := flag.Bool("init", false, "Initialize database")
 	jobHash := flag.String("j", "", "Job hash")
+	runSchedules := flag.Bool("rs", false, "Run schedules")
 
 	flag.Parse()
 
 	if *cmd == "h" || *cmd == "help" || *help != "" {
 		fmt.Println("Usage: ./mailer -c new_job -i <input data sheet> -t <message template> -s <sender email> -d <schedule>")
 		os.Exit(0)
+	}
+
+	if *runSchedules {
+		return Input{Command: "run_schedules"}
 	}
 
 	if *init {
@@ -38,7 +44,13 @@ func ParseInput() Input {
 	}
 
 	if *jobHash != "" {
-		return Input{Command: "run_job", NewJob: processes.NewJob{Hash: *jobHash}}
+		if *cmd == "run_jon" {
+			return Input{Command: "read_job", Job: processes.Job{Hash: *jobHash}}
+		}
+
+		if *cmd == "delete_job" {
+			return Input{Command: "delete_job", Job: processes.Job{Hash: *jobHash}}
+		}
 	}
 
 	if *cmd == "new_job" {
@@ -67,8 +79,8 @@ func ParseInput() Input {
 				panic(e)
 			}
 		}
-		newJob := processes.NewJob{InputFile: *inputDataSheet, TemplateFile: *messageTemplate, Sender: *senderEmail, Schedule: scheduleTime}
-		return Input{Command: *cmd, NewJob: newJob}
+		newJob := processes.Job{InputFile: *inputDataSheet, TemplateFile: *messageTemplate, Sender: *senderEmail, Schedule: scheduleTime}
+		return Input{Command: *cmd, Job: newJob}
 	}
 
 	if *cmd == "list_jobs" {

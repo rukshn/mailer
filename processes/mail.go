@@ -22,13 +22,6 @@ func SendMail(message models.Message, job models.Job) bool {
 	smtpPort := os.Getenv("SMTP_PORT")
 	pass := os.Getenv("SMTP_PASS")
 
-	fmt.Println("HOST: ", smtpHost)
-	fmt.Println("PORT: ", smtpPort)
-	fmt.Println("PASS: ", pass)
-	fmt.Println("USERNAME: ", job.Sender)
-	fmt.Println("RECIPIENT: ", message.Recipient)
-	fmt.Println("MESSAGE: ", message.Content)
-
 	from := mail.Address{Name: "Mailer", Address: job.Sender}
 	to := mail.Address{Name: "", Address: message.Recipient}
 	subject := message.Subject
