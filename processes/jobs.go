@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type NewJob struct {
+type Job struct {
 	InputFile    string
 	TemplateFile string
 	Sender       string
@@ -64,7 +64,10 @@ func DeleteJob(hash string) bool {
 		panic("failed to connect database")
 	}
 	var job models.Job
+	var messages []models.Message
 	db.Where("hash = ?", hash).First(&job)
+	db.Where("job_id = ?", job.ID).Find(&messages)
+	db.Delete(&messages)
 	db.Delete(&job)
 	return true
 }
@@ -85,7 +88,7 @@ func RunJob(hash string) {
 	UpdateJob(job)
 }
 
-func GenerateNewJob(job NewJob) NewJob {
+func GenerateNewJob(job Job) Job {
 	newJob := createJob(job.Schedule, job.Sender)
 	job.JobID = newJob.ID
 	inputData := readCSV(job.InputFile)
