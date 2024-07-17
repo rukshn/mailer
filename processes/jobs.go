@@ -1,6 +1,7 @@
 package processes
 
 import (
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/csv"
 	"encoding/hex"
@@ -38,13 +39,16 @@ func createJob(schedule time.Time, sender string) models.Job {
 		panic("failed to connect database")
 	}
 
-	h := sha256.New()
-	h.Write([]byte(schedule.String()))
-	bs := h.Sum(nil)
+	randomBytes := make([]byte, 32)
+	_, err = rand.Read(randomBytes)
+	if err != nil {
+		panic("failed to generate random bytes")
+	}
 
-	hexHash := hex.EncodeToString(bs)
+	hashBytes := sha256.Sum256(randomBytes)
+	hashHex, err := hex.EncodeToString(hashBytes[:]), nil
 
-	job := models.Job{Hash: hexHash, Schedule: schedule, Status: "pending", Sender: sender}
+	job := models.Job{Hash: hashHex, Schedule: schedule, Status: "pending", Sender: sender}
 	db.Create(&job)
 	return job
 }
