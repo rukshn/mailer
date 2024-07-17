@@ -83,12 +83,12 @@ func RunJob(hash string) {
 	messages := GetMessagesByJobID(job.ID)
 
 	for _, message := range messages {
-		mail := SendMail(message, job)
-		fmt.Println("Mail sent: ", mail)
+		SendMail(message, job)
 		message.Status = true
 		UpdateMessage(message.ID, message.Subject, message.Recipient, message.Content, message.Status)
 	}
 	job.Status = "completed"
+	fmt.Println("✅ JOB COMPLETED :  ", hash)
 	UpdateJob(job)
 }
 
