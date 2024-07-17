@@ -62,14 +62,18 @@ func UpdateJob(job models.Job) models.Job {
 	return job
 }
 
-func DeleteJob(hash string) bool {
+func DeleteJob(hash string, id ...int) bool {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	var job models.Job
 	var messages []models.Message
-	db.Where("hash = ?", hash).First(&job)
+	if id != nil {
+		db.Where("id = ?", id).First(&job)
+	} else {
+		db.Where("hash = ?", hash).First(&job)
+	}
 	db.Where("job_id = ?", job.ID).Find(&messages)
 	db.Delete(&messages)
 	db.Delete(&job)
