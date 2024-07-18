@@ -15,12 +15,12 @@ import (
 )
 
 type Job struct {
+	Schedule     time.Time
 	InputFile    string
 	TemplateFile string
 	Sender       string
-	Schedule     time.Time
-	JobID        int
 	Hash         string
+	JobID        int
 }
 
 func ReadJob(hash string) models.Job {

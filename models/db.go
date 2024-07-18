@@ -9,21 +9,21 @@ import (
 
 type Job struct {
 	gorm.Model
-	ID       int
+	Schedule time.Time
 	Hash     string
 	Status   string
-	Schedule time.Time
 	Sender   string
+	ID       int
 }
 
 type Message struct {
-	ID        int
-	JobID     int
 	Job       Job
 	Subject   string
 	Recipient string
 	Content   string `gorm:"type:text"`
 	Status    bool
+	JobID     int
+	ID        int
 }
 
 type Settings struct {
