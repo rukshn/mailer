@@ -2,6 +2,7 @@ package processes
 
 import (
 	"bytes"
+	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -22,8 +23,13 @@ func processTemplate(temp *template.Template, data map[string]string) string {
 }
 
 func ProcessRecords(records [][]string, templateStr string, JobID int) []Message {
+	templatePath, err := filepath.Abs(templateStr)
+	if err != nil {
+		panic(err)
+	}
+
 	headers := records[0]
-	temp, err := template.New(templateStr).ParseFiles(templateStr)
+	temp, err := template.ParseFiles(templatePath)
 	if err != nil {
 		DeleteJob("", JobID)
 		panic(err)
