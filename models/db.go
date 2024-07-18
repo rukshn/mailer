@@ -1,6 +1,8 @@
 package models
 
 import (
+	"os"
+	"path/filepath"
 	"time"
 
 	"gorm.io/driver/sqlite"
@@ -17,13 +19,13 @@ type Job struct {
 }
 
 type Message struct {
-	Job       Job
+	Content   string `gorm:"type:text"`
 	Subject   string
 	Recipient string
-	Content   string `gorm:"type:text"`
+	Job       Job
 	Status    bool
-	JobID     int
 	ID        int
+	JobID     int
 }
 
 type Settings struct {
@@ -33,7 +35,11 @@ type Settings struct {
 }
 
 func Migrate() {
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
+	dbPath, err := filepath.Abs(filepath.Dir(os.Args[0]) + "/test.db")
+	if err != nil {
+		panic(err)
+	}
+	db, err := gorm.Open(sqlite.Open(dbPath), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
