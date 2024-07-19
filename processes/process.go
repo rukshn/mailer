@@ -2,6 +2,7 @@ package processes
 
 import (
 	"bytes"
+	"fmt"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -34,6 +35,8 @@ func ProcessRecords(records [][]string, templateStr string, JobID int) []Message
 		DeleteJob("", JobID)
 		panic(err)
 	}
+
+	fmt.Println(temp.Root.Nodes[1].String())
 
 	headerToValueMap := make(map[string]string)
 

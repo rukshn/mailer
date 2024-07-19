@@ -20,6 +20,7 @@ type Job struct {
 	TemplateFile string
 	Sender       string
 	Hash         string
+	Status       string
 	JobID        int
 }
 
@@ -96,24 +97,29 @@ func RunJob(hash string) {
 	UpdateJob(job)
 }
 
-func GenerateNewJob(job Job) Job {
+func GenerateNewJob(job Job) []Job {
 	newJob := createJob(job.Schedule, job.Sender)
 	job.JobID = newJob.ID
 	inputData := readCSV(job.InputFile)
-	fmt.Println(inputData)
 	messages := ProcessRecords(inputData, job.TemplateFile, job.JobID)
 	BulkCreateMessage(messages)
-	return job
+	jobs := make([]Job, 1)
+	jobs[0] = Job{Schedule: newJob.Schedule, Hash: newJob.Hash, Status: newJob.Status, Sender: newJob.Sender}
+	return jobs
 }
 
-func GetAllJobs() []models.Job {
+func GetAllJobs() []Job {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
 	}
 	var jobs []models.Job
 	db.Find(&jobs)
-	return jobs
+	var maskJobs []Job
+	for _, job := range jobs {
+		maskJobs = append(maskJobs, Job{Schedule: job.Schedule, Hash: job.Hash, Status: job.Status, Sender: job.Sender})
+	}
+	return maskJobs
 }
 
 func readCSV(filePath string) [][]string {
