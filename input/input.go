@@ -43,11 +43,11 @@ func ParseInput() Input {
 
 		cmdNewJob.Parse(os.Args[2:])
 		if len(os.Args) == 2 {
-			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: new")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint("-new_job") + " -i <input data sheet> -t <message template> -s <sender email> -d <schedule> \n \n -i path to input data sheet (csv) file (required) \n -t path to message template file HTML or tmpl file (required) \n -s sender email (required) \n -d schedule time in RFC3339 format (optional) \n -h print help message")
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: new")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -new_job") + " -i <input data sheet> -t <message template> -s <sender email> -d <schedule> \n \n -i path to input data sheet (csv) file (required) \n -t path to message template file HTML or tmpl file (required) \n -s sender email (required) \n -d schedule time in RFC3339 format (optional) \n -h print help message")
 			os.Exit(0)
 		}
 		if *newJobHelp {
-			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: new")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint("-new_job") + " -i <input data sheet> -t <message template> -s <sender email> -d <schedule> \n \n -i path to input data sheet (csv) file (required) \n -t path to message template file HTML or tmpl file (required) \n -s sender email (required) \n -d schedule time in RFC3339 format (optional) \n -h print help message")
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: new")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -new_job") + " -i <input data sheet> -t <message template> -s <sender email> -d <schedule> \n \n -i path to input data sheet (csv) file (required) \n -t path to message template file HTML or tmpl file (required) \n -s sender email (required) \n -d schedule time in RFC3339 format (optional) \n -h print help message")
 			os.Exit(0)
 		}
 
@@ -82,27 +82,51 @@ func ParseInput() Input {
 
 	// RUN JOB
 	case "run":
+		if len(os.Args) == 2 {
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: run")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -run") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
+		}
 		cmdRunJob.Parse(os.Args[2:])
+
 		if *runJobHelp {
-			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: run")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint("-run") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: run")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -run") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
 		}
 
+		if *runJobHash == "" {
+			fmt.Println("Job hash is required")
+			os.Exit(0)
+		}
 		return Input{Command: "run_job", Job: processes.Job{Hash: *runJobHash}}
 
 	// DELETE JOB
 	case "delete":
 		cmdDeleteJob.Parse(os.Args[2:])
+
+		if len(os.Args) == 2 {
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: delete")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -delete") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
+			os.Exit(1)
+		}
+
 		if *deleteJobHelp {
-			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: delete")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint("-delete") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: delete")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -delete") + " -i <job hash> \n \n -i job hash (required) \n -h print help message")
+		}
+
+		if *deleteJobHash == "" {
+			fmt.Println("Job hash is required")
+			os.Exit(1)
 		}
 		return Input{Command: "delete_job", Job: processes.Job{Hash: *deleteJobHash}}
 
+	// LIST JOBS
 	case "list":
 		cmdListJob.Parse(os.Args[2:])
 		if *listJobHelp {
-			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: list")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint("-list") + " \n \n -h print help message")
+			pterm.DefaultBox.WithTitle(pterm.LightGreen("🆁 Mailer:: list")).Println("\n Usage: ./mailer" + pterm.FgYellow.Sprint(" -list") + " \n \n -h print help message")
 		}
 		return Input{Command: "list_jobs"}
+
+	case "run_sched":
+		return Input{Command: "run_schedules"}
+
 	default:
 		fmt.Println(os.Args[1])
 	}
