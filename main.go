@@ -32,12 +32,12 @@ func main() {
 	}
 
 	if parseCommand.Command == "delete_job" {
-		fmt.Println("Deleting job", parseCommand.Job.Hash)
-		processes.DeleteJob(parseCommand.Job.Hash)
+		jobs := processes.DeleteJob(parseCommand.Job.Hash)
+		output.OutputJob(jobs, "🗑️ Job deleted")
 	}
 
 	if parseCommand.Command == "run_schedules" {
-		fmt.Println("Running schedules")
-		processes.RunPendingJobs()
+		jobs := processes.RunPendingJobs()
+		output.OutputJob(jobs, "🚀 Running schedules")
 	}
 }
