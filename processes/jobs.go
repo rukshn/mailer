@@ -63,7 +63,7 @@ func UpdateJob(job models.Job) models.Job {
 	return job
 }
 
-func DeleteJob(hash string, id ...int) bool {
+func DeleteJob(hash string, id ...int) []Job {
 	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
 	if err != nil {
 		panic("failed to connect database")
@@ -76,25 +76,35 @@ func DeleteJob(hash string, id ...int) bool {
 		db.Where("hash = ?", hash).First(&job)
 	}
 	db.Where("job_id = ?", job.ID).Find(&messages)
+
+	if job.ID == 0 {
+		return []Job{{}}
+	}
+
 	db.Delete(&messages)
 	db.Delete(&job)
-	return true
+	return []Job{{Schedule: job.Schedule, Hash: job.Hash, Status: job.Status, Sender: job.Sender}}
 }
 
-func RunJob(hash string) {
+func RunJob(hash string) models.Job {
 	job := ReadJob(hash)
 	job.Status = "processing"
 	UpdateJob(job)
 	messages := GetMessagesByJobID(job.ID)
 
 	for _, message := range messages {
-		SendMail(message, job)
-		message.Status = true
-		UpdateMessage(message.ID, message.Subject, message.Recipient, message.Content, message.Status)
+		mailStatus := SendMail(message, job)
+		if mailStatus {
+			message.Status = true
+			UpdateMessage(message.ID, message.Subject, message.Recipient, message.Content, message.Status)
+			job.Status = "completed"
+			UpdateJob(job)
+		} else {
+			job.Status = "failed"
+			UpdateJob(job)
+		}
 	}
-	job.Status = "completed"
-	fmt.Println("✅ JOB COMPLETED :  ", hash)
-	UpdateJob(job)
+	return job
 }
 
 func GenerateNewJob(job Job) []Job {

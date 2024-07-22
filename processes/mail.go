@@ -50,39 +50,45 @@ func SendMail(message models.Message, job models.Job) bool {
 
 	con, err := tls.Dial("tcp", serverName, tlsconfig)
 	if err != nil {
-		panic(err)
+		return false
 	}
 
 	c, err := smtp.NewClient(con, host)
 	if err != nil {
-		panic(err)
+		return false
 	}
 
 	if err = c.Auth(auth); err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	if err = c.Mail(from.Address); err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	if err = c.Rcpt(to.Address); err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	w, err := c.Data()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	_, err = w.Write([]byte(messageBody))
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	err = w.Close()
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
+		return false
 	}
 
 	c.Close()
