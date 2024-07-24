@@ -13,17 +13,22 @@ func main() {
 	if parseCommand.Command == "new_job" {
 		newJob := processes.Job(parseCommand.Job)
 		generatedNewJob := processes.GenerateNewJob(newJob)
+		for _, job := range generatedNewJob {
+			output.LogToFile(job.Hash, "New job created: "+job.Hash)
+		}
 		output.OutputJob(generatedNewJob, "✅ New job created")
 	}
 
 	if parseCommand.Command == "list_messages" {
 		listMessages := processes.GetAllMessages()
 		output.GenerateAllMessagesTable(listMessages)
+		output.LogToFile("main", "Listed all messages")
 	}
 
 	if parseCommand.Command == "list_jobs" {
 		listJobs := processes.GetAllJobs()
 		output.OutputJob(listJobs, "📋 All jobs")
+		output.LogToFile("main", "Listed all jobs")
 	}
 
 	if parseCommand.Command == "run_job" {
