@@ -23,28 +23,41 @@ func processTemplate(temp *template.Template, data map[string]string) string {
 	return tpl.String()
 }
 
-func ProcessRecords(records [][]string, templateStr string, JobID int) []Message {
+func ProcessRecords(records [][]string, templateStr string, JobID int, Fields []string) []Message {
 	templatePath, err := filepath.Abs(templateStr)
 	if err != nil {
 		panic(err)
 	}
 
-	headers := records[0]
 	temp, err := template.ParseFiles(templatePath)
+	temp.Option("missingkey=zero")
 	if err != nil {
 		DeleteJob("", JobID)
 		panic(err)
 	}
 
-	fmt.Println(temp.Root.Nodes[1].String())
-
 	headerToValueMap := make(map[string]string)
 
 	var messages []Message
-	for _, record := range records[1:] {
+	fullHeaders := records[0]
+	fullHeaderList := map[string]int{}
 
-		for i, header := range headers {
-			headerToValueMap[header] = record[i]
+	for i, fhi := range fullHeaders {
+		fullHeaderList[fhi] = i
+	}
+
+	var headers []string
+	if len(Fields) > 1 {
+		headers = Fields
+		headers = append(headers, "email")
+	} else if len(Fields) == 1 && Fields[0] == "" {
+		headers = fullHeaders
+	}
+
+	fmt.Println("Headers", headers)
+	for _, record := range records[1:] {
+		for _, header := range headers {
+			headerToValueMap[header] = record[fullHeaderList[header]]
 		}
 
 		processedMessage := processTemplate(temp, headerToValueMap)

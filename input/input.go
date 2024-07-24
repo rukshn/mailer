@@ -6,15 +6,17 @@ import (
 	"odk_mailer/models"
 	"odk_mailer/processes"
 	"os"
+	"strings"
 	"time"
+	"unicode"
 
 	"github.com/pterm/pterm"
 )
 
 type Input struct {
+	Value   []string
 	Command string
 	Job     processes.Job
-	Value   []string
 }
 
 func ParseInput() Input {
@@ -24,6 +26,7 @@ func ParseInput() Input {
 	newJobSenderEmail := cmdNewJob.String("s", "", "Sender email")
 	newJobSchedule := cmdNewJob.String("d", time.Now().String(), "Schedule")
 	newJobHelp := cmdNewJob.Bool("h", false, "Print help message")
+	newJobFields := cmdNewJob.String("f", "", "Comma seperated fields in the message template (recommended for better performance)")
 
 	cmdRunJob := flag.NewFlagSet("run", flag.ExitOnError)
 	runJobHelp := cmdRunJob.Bool("h", false, "Print help message")
@@ -77,7 +80,18 @@ func ParseInput() Input {
 			}
 		}
 
-		newJob := processes.Job{InputFile: *newJobInputDataSheet, TemplateFile: *newJobMessageTemplate, Sender: *newJobSenderEmail, Schedule: scheduleTime}
+		var builder strings.Builder
+		builder.Grow(len(*newJobFields))
+		for _, char := range *newJobFields {
+			if !unicode.IsSpace(char) {
+				builder.WriteRune(char)
+			}
+		}
+
+		fieldString := builder.String()
+		fields := strings.Split(fieldString, ",")
+
+		newJob := processes.Job{InputFile: *newJobInputDataSheet, TemplateFile: *newJobMessageTemplate, Sender: *newJobSenderEmail, Schedule: scheduleTime, Fields: fields}
 		return Input{Command: "new_job", Job: newJob}
 
 	// RUN JOB

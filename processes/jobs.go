@@ -21,6 +21,7 @@ type Job struct {
 	Sender       string
 	Hash         string
 	Status       string
+	Fields       []string
 	JobID        int
 }
 
@@ -111,7 +112,7 @@ func GenerateNewJob(job Job) []Job {
 	newJob := createJob(job.Schedule, job.Sender)
 	job.JobID = newJob.ID
 	inputData := readCSV(job.InputFile)
-	messages := ProcessRecords(inputData, job.TemplateFile, job.JobID)
+	messages := ProcessRecords(inputData, job.TemplateFile, job.JobID, job.Fields)
 	BulkCreateMessage(messages)
 	jobs := make([]Job, 1)
 	jobs[0] = Job{Schedule: newJob.Schedule, Hash: newJob.Hash, Status: newJob.Status, Sender: newJob.Sender}
